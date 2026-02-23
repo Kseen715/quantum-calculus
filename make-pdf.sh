@@ -1,0 +1,1 @@
+.venv/bin/jupyter nbconvert --to pdf --config nbconvert_config.py 01-quantum-teleportation.ipynb
