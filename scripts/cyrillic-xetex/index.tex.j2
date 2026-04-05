@@ -27,3 +27,11 @@
 \pagestyle{plain}
 %% -------------------------------------
 ((*- endblock packages -*))
+
+((*- block definitions -*))
+((( super() )))
+%% Code/output cells: 9pt font (fits ~85 chars/line), single line spacing via explicit skip
+\usepackage{etoolbox}
+\newcommand{\VerbFontSize}{\fontsize{9}{11}\selectfont}
+\fvset{fontsize=\VerbFontSize}
+((*- endblock definitions -*))

@@ -13,6 +13,9 @@ HISTORY.txt
 README.txt
 *_files/
 *.tex
+*.sha256
+*.sig
+output/
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
