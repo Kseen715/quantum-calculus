@@ -49,6 +49,7 @@ python-dateutil==2.9.0.post0
 pyzmq==27.1.0
 qiskit==2.3.0
 qiskit-aer==0.17.2
+quantumz==0.0.5
 referencing==0.37.0
 rpds-py==0.30.0
 rustworkx==0.17.1
