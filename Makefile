@@ -1,7 +1,7 @@
 
 SHELL := /usr/bin/env bash
 VENVBIN := .venv/bin
-JUPYTER := $(VENVBIN)/jupyter
+JUPYTER := $(if $(wildcard .venv/bin/jupyter),.venv/bin/jupyter,$(shell command -v jupyter 2>/dev/null || true))
 OUTDIR := output
 NB := $(wildcard *.ipynb)
 PDFS := $(patsubst %.ipynb,$(OUTDIR)/%.pdf,$(NB))
@@ -9,9 +9,12 @@ SHA := $(patsubst %.pdf,%.pdf.sha256,$(PDFS))
 SIG := $(patsubst %.pdf,%.pdf.sig,$(PDFS))
 MANIFEST := $(OUTDIR)/manifest.json
 
-.PHONY: all checksums sign clean help
+.PHONY: all checksums sign clean help check-tools
 
-all: $(OUTDIR) $(PDFS) checksums
+TOOLS_BUILD := $(JUPYTER) sha256sum python3
+TOOLS_SIGN := gpg
+
+all: check-tools $(OUTDIR) $(PDFS) checksums
 	@if [ -z "$(strip $(GPG_KEY))" ]; then \
 		echo "No GPG_KEY set; skipping signing."; \
 	else \
@@ -27,7 +30,7 @@ $(OUTDIR)/%.pdf: %.ipynb | $(OUTDIR)
 	@echo "Converting $< -> $@"
 	$(JUPYTER) nbconvert --to pdf --config scripts/nbconvert_config.py --output-dir $(OUTDIR) "$<"
 
-checksums: verify-checksums
+checksums: check-tools verify-checksums
 
 $(OUTDIR)/%.pdf.sha256: $(OUTDIR)/%.pdf
 	sha256sum "$<" > "$@"
@@ -42,7 +45,7 @@ verify-checksums: $(SHA)
 	echo "All checksums OK."
 
 # Generate JSON manifest for PDFs in $(OUTDIR)
-manifest: $(MANIFEST)
+manifest: check-tools $(MANIFEST)
 
 MANIFEST_DEPS := $(PDFS) $(SHA)
 ifeq ($(strip $(GPG_KEY)),)
@@ -56,10 +59,10 @@ $(MANIFEST): $(MANIFEST_DEPS)
 	@python3 scripts/generate_manifest.py $(OUTDIR)
 
 ifeq ($(strip $(GPG_KEY)),)
-sign:
+sign: check-tools
 	@echo "GPG_KEY not set. Run: make sign GPG_KEY=YOUR_KEY"
 else
-sign: $(PDFS)
+sign: check-tools $(PDFS)
 	@set -e; \
 	for pdf in $(PDFS); do \
 		sig=$$pdf.sig; \
@@ -73,6 +76,45 @@ sign: $(PDFS)
 		gpg --verify "$$sig" "$$pdf"; \
 	done
 endif
+
+check-tools:
+	@echo "Checking required tools..."
+	@MISSING=0; \
+	if [ "$(MAKECMDGOALS)" = "sign" ] || [ -n "$(strip $(GPG_KEY))" ]; then \
+		TOOLS="$(TOOLS_BUILD) $(TOOLS_SIGN)"; \
+	else \
+		TOOLS="$(TOOLS_BUILD)"; \
+	fi; \
+	for t in $$TOOLS; do \
+		if [ -z "$$t" ]; then \
+			continue; \
+		fi; \
+		if [ -x "$$t" ] || command -v "$$t" >/dev/null 2>&1; then \
+			printf "  [OK]      %s\n" "$$t"; \
+		else \
+			printf "  [MISSING] %s\n" "$$t"; \
+			case "$$t" in \
+				*.venv/bin/jupyter|jupyter) \
+					printf "    Install via: source .venv/bin/activate && pip install jupyter\n"; \
+					;; \
+				sha256sum) \
+					printf "    Install coreutils or use your platform package manager\n"; \
+					;; \
+				python3) \
+					printf "    Install Python 3 (e.g. apt, brew, or python.org)\n"; \
+					;; \
+				gpg) \
+					printf "    Install GPG (e.g. sudo apt install gnupg or brew install gnupg)\n"; \
+					;; \
+			esac; \
+			MISSING=1; \
+		fi; \
+	done; \
+	if [ $$MISSING -ne 0 ]; then \
+		echo "One or more required tools are missing. Aborting." >&2; \
+		exit 1; \
+	fi; \
+	echo "All required tools are available."
 
 clean:
 	rm -rf $(OUTDIR)/*

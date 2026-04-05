@@ -4,7 +4,21 @@
 
 This repository builds Jupyter notebooks into PDFs and generates artifacts in the `output/` folder.
 
+### Prerequisites
+
+The Makefile checks for the following tools before building:
+
+- `jupyter` (used to run `nbconvert`)
+- `sha256sum`
+- `python3`
+- `gpg` only when signing is requested
+
+If a required tool is missing, the build stops and prints a short install hint.
+
 ### Build targets
+
+- `make check-tools`
+  - Verifies required tools are installed before the build
 
 - `make all`
   - Converts all `*.ipynb` notebooks into PDFs
@@ -55,7 +69,7 @@ GPG_KEY=... GPG_PASSPHRASE="your-passphrase" make sign
 
 ### Output artifacts
 
-The build generates the following file types in `output/`:
+The build generates the following files in `output/`:
 
 - `*.pdf`
 - `*.pdf.sha256`
@@ -65,5 +79,5 @@ The build generates the following file types in `output/`:
 ### Notes
 
 - The Makefile detects all notebooks in the repository automatically.
-- The PDF build uses `nbconvert` from `.venv/bin/jupyter`.
+- The PDF build runs via `jupyter nbconvert` from `.venv/bin/jupyter` when available.
 - All outputs are written into `output/` to keep the repository root clean.
