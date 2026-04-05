@@ -1,8 +1,9 @@
-((=- Extends the Jupyter style template with XeLaTeX + Cyrillic (polyglossia) support -=))
+((=- Extends the Jupyter style template with XeLaTeX + Cyrillic (polyglossia) support
+     Formatted according to GOST 7.32-2017 for Russian diploma/research work -=))
 ((*- extends 'style_jupyter.tex.j2' -*))
 
 ((*- block docclass -*))
-\documentclass[12pt,a4paper]{article}
+\documentclass[14pt,a4paper]{article}
 ((*- endblock docclass -*))
 
 ((*- block packages -*))
@@ -11,10 +12,18 @@
 \usepackage{polyglossia}
 \setmainlanguage{russian}
 \setotherlanguage{english}
-\setmainfont{DejaVu Serif}
-\setsansfont{DejaVu Sans}
-\setmonofont[Scale=0.85]{DejaVu Sans Mono}
-%% --- Page layout ---
-\geometry{a4paper, top=2cm, bottom=2cm, left=2.5cm, right=2cm}
+%% FreeSerif = Times New Roman equivalent with full Cyrillic (GOST 7.32-2017 recommends TNR)
+\setmainfont{FreeSerif}
+\setsansfont{FreeSans}
+\setmonofont[Scale=0.82]{DejaVu Sans Mono}
+%% --- GOST 7.32-2017 §6.1.1: margins left 30mm, right 15mm, top 20mm, bottom 20mm ---
+\geometry{a4paper, top=2cm, bottom=2cm, left=3cm, right=1.5cm}
+%% --- GOST 7.32-2017 §6.1.1: line spacing 1.5 intervals ---
+\usepackage{setspace}
+\setstretch{1.5}
+%% --- GOST 7.32-2017 §6.1.1: paragraph indent 1.25 cm ---
+\setlength{\parindent}{1.25cm}
+%% --- GOST 7.32-2017 §6.3.1: page numbers centered at bottom ---
+\pagestyle{plain}
 %% -------------------------------------
 ((*- endblock packages -*))
