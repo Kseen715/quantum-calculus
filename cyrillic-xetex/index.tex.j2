@@ -1,5 +1,9 @@
-((=- Extends the default latex template with XeLaTeX + Cyrillic (polyglossia) support -=))
-((*- extends 'base.tex.j2' -*))
+((=- Extends the Jupyter style template with XeLaTeX + Cyrillic (polyglossia) support -=))
+((*- extends 'style_jupyter.tex.j2' -*))
+
+((*- block docclass -*))
+\documentclass[12pt,a4paper]{article}
+((*- endblock docclass -*))
 
 ((*- block packages -*))
 ((( super() )))
@@ -9,6 +13,8 @@
 \setotherlanguage{english}
 \setmainfont{DejaVu Serif}
 \setsansfont{DejaVu Sans}
-\setmonofont[Scale=0.9]{DejaVu Sans Mono}
+\setmonofont[Scale=0.85]{DejaVu Sans Mono}
+%% --- Page layout ---
+\geometry{a4paper, top=2cm, bottom=2cm, left=2.5cm, right=2cm}
 %% -------------------------------------
 ((*- endblock packages -*))

@@ -11,6 +11,8 @@ sites/site*/public/theme/
 textpattern/
 HISTORY.txt
 README.txt
+*_files/
+*.tex
 
 ## Core latex/pdflatex auxiliary files:
 *.aux
